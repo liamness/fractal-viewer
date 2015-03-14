@@ -7,25 +7,23 @@
 <meta name="keywords" content="liamness, liam duffy, programmer, designer" />
 <meta name="author" content="liam duffy" />
 <meta name="dcterms.rights" content="2013 liam paul duffy" />
-<title>liamness' fractal viewer</title>
+<title>Fractal Viewer</title>
 <link rel="stylesheet" href="demo.css" />
 </head>
 
-<body>
+<body class="popup-active">
     <div class="demo">
         <canvas id="canvas" width="400" height="400">If you're seeing this, it probably means your browser doesn't support WebGL, and so you can't see this lovely demo. :(</canvas>
     </div>
 
-    <div class="popupWrap">
+    <div class="popup-wrap">
         <div class="popup">
             <p><strong>Instructions:</strong></p>
-            <p>To move the fractal, click and drag. Scroll using your mouse or trackpad to zoom. A set of extended controls, which allow custom colours to be used and generated images to be saved, is available if you click the button in the top right.</p>
+            <p>You can move around the fractal and zoom using your mouse or touch controls. Extended settings available using the dropdown in the top right.</p>
             <p><strong><a onclick="removeDialog()">Click to begin</a></strong></p>
         </div>
     </div>
 
-    <script id="shader-fs" type="x-shader/x-fragment" src="fragment.glsl"></script>
-    <script id="shader-vs" type="x-shader/x-vertex" src="vertex.glsl"></script>
     <script type="text/javascript" src="bower_components/dat-gui/build/dat.gui.min.js"></script>
     <script type="text/javascript" src="app.js"></script>
 </body>

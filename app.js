@@ -131,57 +131,57 @@ function initVertexBuffer() {
 }
 
 function draw() {
-    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    requestAnimationFrame(function() {
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    })
 }
 
-var gui = new dat.GUI(),
-    guiElems = {
-        displaySet: function() {
-            if(is_coloured == true) {
-                is_coloured = false;
-            } else {
-            is_coloured = true;
-            }
-            updateUniforms();
-            draw();
-        },
-        fullscreen: function() {
-            if(is_fullscreen) {
-                canvas.width = 400;
-                canvas.height = 400;
-                is_fullscreen = false;
-            } else {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                is_fullscreen = true;
-            }
-            resize();
-            normalise();
-        },
-        screenshot: function() {
-            var data = canvas.toDataURL("image/png");
-            printDialog(
-                '<p class="popupText">Click <a href="' + data + '" download="screenshot">here</a> to download the screenshot.</p>',
-                removeDialog,
-                false
-            );
-        },
-        weighting: 0.5,
-        numColours: 3,
-        colour1: [255, 0, 0],
-        colour2: [255, 255, 255],
-        colour3: [0, 0, 255],
-        colour4: [0, 0, 0],
-        colour5: [0, 0, 0],
-        colour6: [0, 0, 0],
-        colour7: [0, 0, 0],
-        colour8: [0, 0, 0],
-        colour9: [0, 0, 0],
-        colour10: [0, 0, 0]
-    };
+var gui = new dat.GUI();
+gui.close();
+
+var guiElems = {
+    displaySet: function() {
+        if(is_coloured == true) {
+            is_coloured = false;
+        } else {
+        is_coloured = true;
+        }
+        updateUniforms();
+        draw();
+    },
+    fullscreen: function() {
+        if(is_fullscreen) {
+            canvas.width = 400;
+            canvas.height = 400;
+            is_fullscreen = false;
+        } else {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            is_fullscreen = true;
+        }
+        resize();
+        normalise();
+    },
+    screenshot: function() {
+        var data = canvas.toDataURL("image/png");
+        printDialog('<p>Click <a href="' + data + '" download="screenshot">here</a> to download the screenshot.</p>');
+    },
+    weighting: 0.5,
+    numColours: 3,
+    colour1: [255, 0, 0],
+    colour2: [255, 255, 255],
+    colour3: [0, 0, 255],
+    colour4: [0, 0, 0],
+    colour5: [0, 0, 0],
+    colour6: [0, 0, 0],
+    colour7: [0, 0, 0],
+    colour8: [0, 0, 0],
+    colour9: [0, 0, 0],
+    colour10: [0, 0, 0]
+};
 
 function initGUI() {
     var numColoursChoices = [];
@@ -196,11 +196,20 @@ function initGUI() {
             draw();
         });
 
-    for(var i = 1; i <= guiElems.numColours; i++ ) {
+    for(var i = 1; i <= 10; i++ ) {
         (function(i) {
             gui.addColor(guiElems, 'colour' + i)
             .name('Colour ' + i)
             .onChange(function(val) {
+                // fix because dat.gui likes to return strings sometimes
+                if(typeof val === 'string') {
+                    val = [
+                        parseInt(val.substr(1, 2), 16),
+                        parseInt(val.substr(3, 2), 16),
+                        parseInt(val.substr(5, 2), 16)
+                    ];
+                }
+
                 colours[(i - 1) * 4] = val[0] / 255;
                 colours[(i - 1) * 4 + 1] = val[1] / 255;
                 colours[(i - 1) * 4 + 2]  = val[2] / 255;
@@ -421,10 +430,19 @@ function doZoomTo(xDist, yDist, zoom) {
     draw();
 }
 
-var currentAction;
+var popup = document.querySelector('.popup'),
+    popupWrap = document.querySelector('.popup-wrap'),
+    currentAction, currentTimeout;
+
+popupWrap.addEventListener('click', function(e) {
+    if(e.target === popupWrap) { removeDialog(); }
+});
+
+window.addEventListener('keyup', function(e) {
+    if(e.keyCode === '27') { removeDialog(); }
+});
 
 function printDialog( content, action, timeout ) {
-    var popup = document.querySelector('.popup');
     popup.innerHTML = content;
 
     if(action) {
@@ -432,23 +450,18 @@ function printDialog( content, action, timeout ) {
         popup.addEventListener('click', action);
     }
 
-    if(timeout) {
-        setTimeout( removeDialog, timeout );
-    }
+    if(timeout) { currentTimeout = setTimeout( removeDialog, timeout ); }
 
-    var popupWrap = document.querySelector('.popupWrap');
-    popupWrap.className = 'popupWrap';
+    document.body.classList.add('popup-active');
 }
 
 function removeDialog() {
-    var popup = document.querySelector('.popup');
+    document.body.classList.remove('popup-active');
     popup.removeEventListener('click', currentAction);
-
-    var popupWrap = document.querySelector('.popupWrap');
-    popupWrap.className = 'popupWrap hidden';
+    clearTimeout(currentTimeout);
 }
 
-setTimeout(removeDialog, 5000);
+currentTimeout = setTimeout(removeDialog, 20000);
 
 var canvas = document.getElementById("canvas");
 canvas.width = window.innerWidth;
