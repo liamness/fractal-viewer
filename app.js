@@ -1,8 +1,10 @@
+'use strict';
+
 var gl;
 
 function initGL(canvas) {
     try {
-        gl = canvas.getContext("experimental-webgl", {
+        gl = canvas.getContext('webgl', {
             antialias: true,
             preserveDrawingBuffer: true
         });
@@ -11,15 +13,15 @@ function initGL(canvas) {
     } catch (e) {
     }
     if (!gl) {
-        alert("Could not initialise WebGL, sorry :-(");
+        alert('Could not initialise WebGL, sorry :-(');
     }
 }
 
 function getShader(url, type, callback) {
     var shader;
-    if (type == "fragment") {
+    if (type == 'fragment') {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
-    } else if (type == "vertex") {
+    } else if (type == 'vertex') {
         shader = gl.createShader(gl.VERTEX_SHADER);
     } else {
         callback(null);
@@ -77,12 +79,12 @@ function initShaderProgram(vertexShader, fragmentShader, ready) {
     gl.linkProgram(shaderProgram);
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert("Could not initialise shaders");
+        alert('Could not initialise shaders');
     }
 
     gl.useProgram(shaderProgram);
 
-    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
     initVertexBuffer();
@@ -90,21 +92,21 @@ function initShaderProgram(vertexShader, fragmentShader, ready) {
 }
 
 function updateUniforms() {
-    var uScreenResolutionLoc = gl.getUniformLocation(shaderProgram, "uScreenResolution");
+    var uScreenResolutionLoc = gl.getUniformLocation(shaderProgram, 'uScreenResolution');
     gl.uniform2f(uScreenResolutionLoc, canvas.width, canvas.height);
-    var uRealLimitsLoc = gl.getUniformLocation(shaderProgram, "uRealLimits");
+    var uRealLimitsLoc = gl.getUniformLocation(shaderProgram, 'uRealLimits');
     gl.uniform2f(uRealLimitsLoc, re_min, re_max);
-    var uImaginaryLimitsLoc = gl.getUniformLocation(shaderProgram, "uImaginaryLimits");
+    var uImaginaryLimitsLoc = gl.getUniformLocation(shaderProgram, 'uImaginaryLimits');
     gl.uniform2f(uImaginaryLimitsLoc, im_min, im_max);
-    var uNumColoursLoc = gl.getUniformLocation(shaderProgram, "uNumColours");
+    var uNumColoursLoc = gl.getUniformLocation(shaderProgram, 'uNumColours');
     gl.uniform1i(uNumColoursLoc, num_colours);
-    var uWeightLoc = gl.getUniformLocation(shaderProgram, "uWeight");
+    var uWeightLoc = gl.getUniformLocation(shaderProgram, 'uWeight');
     gl.uniform1f(uWeightLoc, weight);
 
-    var uColoursLoc = gl.getUniformLocation(shaderProgram, "uColours");
+    var uColoursLoc = gl.getUniformLocation(shaderProgram, 'uColours');
     gl.uniform4fv(uColoursLoc, colours);
 
-    var uSetColourLoc = gl.getUniformLocation(shaderProgram, "uSetColour");
+    var uSetColourLoc = gl.getUniformLocation(shaderProgram, 'uSetColour');
     if(is_coloured) {
         gl.uniform4f(uSetColourLoc, colours[0], colours[1], colours[2], colours[3]);
     } else {
@@ -114,17 +116,17 @@ function updateUniforms() {
 }
 
 var squareVertexPositionBuffer;
-
 function initVertexBuffer() {
-    squareVertexPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-    var vertices = [
+    var vertices = new Float32Array([
          1.0,  1.0,
         -1.0,  1.0,
          1.0, -1.0,
         -1.0, -1.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    ]);
+
+    squareVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     squareVertexPositionBuffer.itemSize = 2;
     squareVertexPositionBuffer.numItems = 4;
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -166,7 +168,7 @@ var guiElems = {
         normalise();
     },
     screenshot: function() {
-        var data = canvas.toDataURL("image/png");
+        var data = canvas.toDataURL('image/png');
         printDialog('<p>Click <a href="' + data + '" download="screenshot">here</a> to download the screenshot.</p>');
     },
     weighting: 0.5,
@@ -185,9 +187,11 @@ var guiElems = {
 
 function initGUI() {
     var numColoursChoices = [];
+
     for(var i = 1; i <= 10; i++ ) {
         numColoursChoices.push(i);
     }
+
     gui.add(guiElems, 'numColours', numColoursChoices)
         .name('# of Colours')
         .onChange(function (val) {
@@ -212,7 +216,7 @@ function initGUI() {
 
                 colours[(i - 1) * 4] = val[0] / 255;
                 colours[(i - 1) * 4 + 1] = val[1] / 255;
-                colours[(i - 1) * 4 + 2]  = val[2] / 255;
+                colours[(i - 1) * 4 + 2] = val[2] / 255;
                 updateUniforms();
                 draw();
             });
@@ -227,9 +231,9 @@ function initGUI() {
             draw();
         });
 
-    gui.add( guiElems, 'displaySet' ).name('Colour Set');
-    gui.add( guiElems, 'fullscreen' ).name('Fullscreen');
-    gui.add( guiElems, 'screenshot' ).name('Screenshot');
+    gui.add(guiElems, 'displaySet').name('Colour Set');
+    gui.add(guiElems, 'fullscreen').name('Fullscreen');
+    gui.add(guiElems, 'screenshot').name('Screenshot');
 }
 
 function resize() {
@@ -247,93 +251,97 @@ function resize() {
 }
 
 var new_x1, new_y1, new_x2, new_y2, old_x1, old_y1, old_x2, old_y2, id1, id2, clicked = false, pinched = false;
-function mouseDown(event) {
-    new_x1 = old_x1 = event.pageX - canvas_rect.left;
-    new_y1 = old_y1 = event.pageY - canvas_rect.top;
+function mouseDown(e) {
+    new_x1 = old_x1 = e.pageX - canvas_rect.left;
+    new_y1 = old_y1 = e.pageY - canvas_rect.top;
     clicked = true;
 }
 
-function mouseMove(event) {
-    new_x1 = event.pageX - canvas_rect.left;
-    new_y1 = event.pageY - canvas_rect.top;
+function mouseMove(e) {
+    new_x1 = e.pageX - canvas_rect.left;
+    new_y1 = e.pageY - canvas_rect.top;
+
     if(clicked) {
-        var xDist = (new_x1 - old_x1) / canvas.width;
-        var yDist = (new_y1 - old_y1) / canvas.height;
+        var xDist = (new_x1 - old_x1) / canvas.width,
+            yDist = (new_y1 - old_y1) / canvas.height;
         doTranslate(xDist, yDist);
     }
+
     old_x1 = new_x1;
     old_y1 = new_y1;
 }
 
-function mouseUp(event) {
+function mouseUp() {
     clicked = false;
 }
 
-function mouseWheel(event) {
-    var wheel = event.wheelDelta;
-    zoom = Math.pow(1.001, wheel);
-    var xDist = (event.pageX - canvas_rect.left) / canvas.width;
-    var yDist = (event.pageY - canvas_rect.top) / canvas.height;
+function wheel(e) {
+    e.preventDefault();
+
+    var xDist = (e.pageX - canvas_rect.left) / canvas.width,
+        yDist = (e.pageY - canvas_rect.top) / canvas.height,
+        zoom = Math.pow(1.001, e.wheelDelta);
+
     doZoomTo(xDist, yDist, zoom);
 }
 
-function foxWheel(event) {
-    var wheel = - event.detail * 10;
-    zoom = Math.pow(1.001, wheel);
-    var xDist = (event.pageX - canvas_rect.left) / canvas.width;
-    var yDist = (event.pageY - canvas_rect.top) / canvas.height;
-    doZoomTo(xDist, yDist, zoom);
-}
+function touchStart(e) {
+    e.preventDefault();
 
-function touchStart(event) {
-    event.preventDefault();
-    if(event.targetTouches.length === 1) {
-        id1 = event.targetTouches[0].identifier;
-        new_x1 = old_x1 = event.targetTouches[0].pageX - canvas_rect.left;
-        new_y1 = old_y1 = event.targetTouches[0].pageY - canvas_rect.top;
-    } else if(event.targetTouches.length === 2) {
-        id1 = event.targetTouches[0].identifier;
-        id2 = event.targetTouches[1].identifier;
-        new_x1 = old_x1 = event.targetTouches[0].pageX - canvas_rect.left;
-        new_y1 = old_y1 = event.targetTouches[0].pageY - canvas_rect.top;
-        new_x2 = old_x2 = event.targetTouches[1].pageX - canvas_rect.left;
-        new_y2 = old_y2 = event.targetTouches[1].pageY - canvas_rect.top;
+    if(e.targetTouches.length === 1) {
+        id1 = e.targetTouches[0].identifier;
+        new_x1 = old_x1 = e.targetTouches[0].pageX - canvas_rect.left;
+        new_y1 = old_y1 = e.targetTouches[0].pageY - canvas_rect.top;
+    } else if(e.targetTouches.length === 2) {
+        id1 = e.targetTouches[0].identifier;
+        id2 = e.targetTouches[1].identifier;
+        new_x1 = old_x1 = e.targetTouches[0].pageX - canvas_rect.left;
+        new_y1 = old_y1 = e.targetTouches[0].pageY - canvas_rect.top;
+        new_x2 = old_x2 = e.targetTouches[1].pageX - canvas_rect.left;
+        new_y2 = old_y2 = e.targetTouches[1].pageY - canvas_rect.top;
     }
 }
 
-function touchMove(event) {
-    event.preventDefault();
-    if(event.targetTouches.length === 1) {
-        new_x1 = event.targetTouches[0].pageX - canvas_rect.left;
-        new_y1 = event.targetTouches[0].pageY - canvas_rect.top;
-        if(event.targetTouches[0].identifier === id1) {
-            var xDist = (new_x1 - old_x1) / canvas.width;
-            var yDist = (new_y1 - old_y1) / canvas.height;
+function touchMove(e) {
+    e.preventDefault();
+
+    if(e.targetTouches.length === 1) {
+        new_x1 = e.targetTouches[0].pageX - canvas_rect.left;
+        new_y1 = e.targetTouches[0].pageY - canvas_rect.top;
+
+        if(e.targetTouches[0].identifier === id1) {
+            var xDist = (new_x1 - old_x1) / canvas.width,
+                yDist = (new_y1 - old_y1) / canvas.height;
+
             doTranslate(xDist, yDist);
         } else {
-            id1 = event.targetTouches[0].identifier;
+            id1 = e.targetTouches[0].identifier;
         }
+
         old_x1 = new_x1;
         old_y1 = new_y1;
-    } else if(event.targetTouches.length === 2) {
-        new_x1 = event.targetTouches[0].pageX - canvas_rect.left;
-        new_y1 = event.targetTouches[0].pageY - canvas_rect.top;
-        new_x2 = event.targetTouches[1].pageX - canvas_rect.left;
-        new_y2 = event.targetTouches[1].pageY - canvas_rect.top;
-        if(event.targetTouches[0].identifier === id1 && event.targetTouches[1].identifier === id2) {
-            var xPinchOld = old_x1 - old_x2;
-            var yPinchOld = old_y1 - old_y2;
-            var pinchOld = Math.sqrt(xPinchOld * xPinchOld + yPinchOld * yPinchOld);
-            var xPinchNew = new_x1 - new_x2;
-            var yPinchNew = new_y1 - new_y2;
-            var pinchNew = Math.sqrt(xPinchNew * xPinchNew + yPinchNew * yPinchNew);
-            var xDist = (new_x1 + new_x1) / 2 / canvas.width;
-            var yDist = (new_y1 + new_y2) / 2 / canvas.height;
+    } else if(e.targetTouches.length === 2) {
+        new_x1 = e.targetTouches[0].pageX - canvas_rect.left;
+        new_y1 = e.targetTouches[0].pageY - canvas_rect.top;
+        new_x2 = e.targetTouches[1].pageX - canvas_rect.left;
+        new_y2 = e.targetTouches[1].pageY - canvas_rect.top;
+
+        if(e.targetTouches[0].identifier === id1 && e.targetTouches[1].identifier === id2) {
+            var xPinchOld = old_x1 - old_x2,
+                yPinchOld = old_y1 - old_y2,
+                pinchOld = Math.sqrt(xPinchOld * xPinchOld + yPinchOld * yPinchOld),
+                xPinchNew = new_x1 - new_x2,
+                yPinchNew = new_y1 - new_y2,
+                pinchNew = Math.sqrt(xPinchNew * xPinchNew + yPinchNew * yPinchNew),
+                xDist = (new_x1 + new_x1) / 2 / canvas.width,
+                yDist = (new_y1 + new_y2) / 2 / canvas.height;
+
             doZoomTo(xDist, yDist, pinchNew / pinchOld);
         } else {
-            id1 = event.targetTouches[0].identifier;
-            id2 = event.targetTouches[0].identifier;
+            id1 = e.targetTouches[0].identifier;
+            id2 = e.targetTouches[0].identifier;
         }
+
         old_x1 = new_x1;
         old_y1 = new_y1;
         old_x2 = new_x2;
@@ -341,8 +349,8 @@ function touchMove(event) {
     }
 }
 
-function touchEnd(event) {
-    event.preventDefault();
+function touchEnd(e) {
+    e.preventDefault();
 }
 
 var re_min, re_max, im_min, im_max, colours, num_colours, weight, is_coloured;
@@ -369,27 +377,28 @@ function initMandel() {
 }
 
 function normalise() {
-    var ratio = canvas.width / canvas.height;
-    var reWidth = re_max - re_min;
-    var imHeight = im_max - im_min;
-    var cur = reWidth / imHeight;
-    var diff = ratio - cur;
+    var ratio = canvas.width / canvas.height,
+        reWidth = re_max - re_min,
+        imHeight = im_max - im_min,
+        cur = reWidth / imHeight,
+        diff = ratio - cur;
 
-    if(diff > 0.001 || diff < -0.001) {
+    if(diff !== 0) {
         var im_adj = (reWidth / ratio - imHeight) / 2.0;
         im_max += im_adj;
         im_min -= im_adj;
-    }
 
-    updateUniforms();
-    draw();
+        updateUniforms();
+        draw();
+    }
 }
 
 function doTranslate(xDist, yDist) {
-    var reWidth = re_max - re_min;
-    var imHeight = im_max - im_min;
-    var reAdj = reWidth * xDist;
-    var imAdj = imHeight * yDist;
+    var reWidth = re_max - re_min,
+        imHeight = im_max - im_min,
+        reAdj = reWidth * xDist,
+        imAdj = imHeight * yDist;
+
     re_max -= reAdj;
     re_min -= reAdj;
     im_max += imAdj;
@@ -400,12 +409,13 @@ function doTranslate(xDist, yDist) {
 }
 
 function doZoom(zoom) {
-    var reWidth = re_max - re_min;
-    var imHeight = im_max - im_min;
-    var x = re_min + reWidth / 2;
-    var y = im_max - imHeight / 2;
-    var newWidth = reWidth / zoom;
-    var newHeight = imHeight / zoom;
+    var reWidth = re_max - re_min,
+        imHeight = im_max - im_min,
+        x = re_min + reWidth / 2,
+        y = im_max - imHeight / 2,
+        newWidth = reWidth / zoom,
+        newHeight = imHeight / zoom;
+
     re_max = x + newWidth / 2;
     re_min = x - newWidth / 2;
     im_max = y + newHeight / 2;
@@ -416,10 +426,10 @@ function doZoom(zoom) {
 }
 
 function doZoomTo(xDist, yDist, zoom) {
-    var reWidth = re_max - re_min;
-    var imHeight = im_max - im_min;
-    var newWidth = reWidth / zoom;
-    var newHeight = imHeight / zoom;
+    var reWidth = re_max - re_min,
+        imHeight = im_max - im_min,
+        newWidth = reWidth / zoom,
+        newHeight = imHeight / zoom;
 
     re_max -= (reWidth - newWidth) * (1 - xDist);
     re_min += (reWidth - newWidth) * xDist;
@@ -463,25 +473,18 @@ function removeDialog() {
 
 currentTimeout = setTimeout(removeDialog, 20000);
 
-var canvas = document.getElementById("canvas");
+var canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-canvas.addEventListener("mousedown", mouseDown);
-canvas.addEventListener("mousemove", mouseMove);
-canvas.addEventListener("mouseup", mouseUp);
-canvas.addEventListener('mousewheel', function(event){
-    mouseWheel(event);
-    event.preventDefault();
-}, false);
-canvas.addEventListener("DOMMouseScroll", function(event){
-    foxWheel(event);
-    event.preventDefault();
-}, false);
-canvas.addEventListener("touchstart", touchStart);
-canvas.addEventListener("touchend", touchEnd);
-canvas.addEventListener("touchleave", touchEnd);
-canvas.addEventListener("touchmove", touchMove);
+canvas.addEventListener('mousedown', mouseDown);
+canvas.addEventListener('mousemove', mouseMove);
+canvas.addEventListener('mouseup', mouseUp);
+canvas.addEventListener('wheel', wheel);
+canvas.addEventListener('touchstart', touchStart);
+canvas.addEventListener('touchend', touchEnd);
+canvas.addEventListener('touchleave', touchEnd);
+canvas.addEventListener('touchmove', touchMove);
 
 initGUI();
 initGL(canvas);
