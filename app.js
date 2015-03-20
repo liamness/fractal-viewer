@@ -278,9 +278,10 @@ function mouseUp() {
 function wheel(e) {
     e.preventDefault();
 
-    var xDist = (e.pageX - canvas_rect.left) / canvas.width,
+    var wheelDelta = (e.deltaMode === 0 ? e.deltaY : e.deltaY * 20),
+        xDist = (e.pageX - canvas_rect.left) / canvas.width,
         yDist = (e.pageY - canvas_rect.top) / canvas.height,
-        zoom = Math.pow(1.001, e.wheelDelta);
+        zoom = Math.pow(1.001, wheelDelta);
 
     doZoomTo(xDist, yDist, zoom);
 }
