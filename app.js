@@ -19,9 +19,9 @@ function initGL(canvas) {
 
 function getShader(url, type, callback) {
     var shader;
-    if (type == 'fragment') {
+    if (type === 'fragment') {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
-    } else if (type == 'vertex') {
+    } else if (type === 'vertex') {
         shader = gl.createShader(gl.VERTEX_SHADER);
     } else {
         callback(null);
@@ -32,8 +32,8 @@ function getShader(url, type, callback) {
     req.open('GET', url);
 
     req.onreadystatechange = function (a, b, c) {
-        if (req.readyState == 4) {
-            if (req.status == 200) {
+        if (req.readyState === 4) {
+            if (req.status === 200) {
                 gl.shaderSource(shader, req.responseText);
                 gl.compileShader(shader);
 
@@ -146,7 +146,7 @@ gui.close();
 
 var guiElems = {
     displaySet: function() {
-        if(is_coloured == true) {
+        if(is_coloured === true) {
             is_coloured = false;
         } else {
         is_coloured = true;
@@ -194,7 +194,7 @@ function initGUI() {
 
     gui.add(guiElems, 'numColours', numColoursChoices)
         .name('# of Colours')
-        .onChange(function (val) {
+        .onChange(function(val) {
             num_colours = val;
             updateUniforms();
             draw();
@@ -281,7 +281,7 @@ function wheel(e) {
     var wheelDelta = (e.deltaMode === 0 ? e.deltaY : e.deltaY * 20),
         xDist = (e.pageX - canvas_rect.left) / canvas.width,
         yDist = (e.pageY - canvas_rect.top) / canvas.height,
-        zoom = Math.pow(1.001, wheelDelta);
+        zoom = Math.pow(0.999, wheelDelta);
 
     doZoomTo(xDist, yDist, zoom);
 }
